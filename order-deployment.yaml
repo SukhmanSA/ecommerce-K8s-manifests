@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: order-service
-          image: docker.io/sukhman78/ecommerce-deployment:order-service
+          image: 719742385367.dkr.ecr.ap-south-1.amazonaws.com/ecommerce:orderservice-403bffe
           imagePullPolicy: Always
           ports:
             - containerPort: 8084
@@ -36,4 +36,3 @@ spec:
                 secretKeyRef:
                   name: postgres-secret
                   key: POSTGRES_PASSWORD
-
