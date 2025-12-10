@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: cart-service
-          image: docker.io/sukhman78/ecommerce-deployment:cart-service
+          image: 719742385367.dkr.ecr.ap-south-1.amazonaws.com/ecommerce:cartservice-403bffe
           imagePullPolicy: Always
           ports:
             - containerPort: 8083
@@ -36,4 +36,3 @@ spec:
                 secretKeyRef:
                   name: postgres-secret
                   key: POSTGRES_PASSWORD
-

@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: api-gateway
-          image: docker.io/sukhman78/ecommerce-deployment:api-gateway
+          image: 719742385367.dkr.ecr.ap-south-1.amazonaws.com/ecommerce:apigateway-403bffe
           ports:
             - containerPort: 9000
           env:
@@ -23,4 +23,3 @@ spec:
               value: kubernetes
             - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
               value: http://discovery-service:8761/eureka
-
