@@ -1,107 +1,4 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: cart-service
-  namespace: ecommerce
-spec:
-  replicas: 2  # Increased for better performance with caching
-  selector:
-    matchLabels:
-      app: cart-service
-  template:
-    metadata:
-      labels:
-        app: cart-service
-    spec:
-      serviceAccountName: adot-collector-service-account
-      automountServiceAccountToken: true
-      containers:
-        - name: cart-service
-          image: docker.io/sukhman78/ecommerce-deployment:cart-service
-          imagePullPolicy: Always
-          ports:
-            - containerPort: 8083
-          env:
-            - name: SPRING_PROFILES_ACTIVE
-              value: kubernetes
-            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
-              value: http://discovery-service:8761/eureka
-            - name: SPRING_DATASOURCE_URL
-              value: jdbc:postgresql://postgres:5432/ecommercedb
-            - name: SPRING_DATASOURCE_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-secret
-                  key: POSTGRES_USER
-            - name: SPRING_DATASOURCE_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-secret
-                  key: POSTGRES_PASSWORD
-            # Redis Configuration
-            - name: SPRING_REDIS_HOST
-              value: redis.ecommerce.svc.cluster.local
-            - name: SPRING_REDIS_PORT
-              value: "6379"
-            # CRITICAL: Java Agent Configuration
-            - name: JAVA_TOOL_OPTIONS
-              value: >
-                -javaagent:/otel/opentelemetry-javaagent.jar
-                -Dotel.service.name=cart-service
-                -Dotel.traces.exporter=otlp
-                -Dotel.metrics.exporter=none
-                -Dotel.logs.exporter=none
-                -Dotel.exporter.otlp.endpoint=http://adot-collector.ecommerce:4318
-                -Dotel.exporter.otlp.protocol=http/protobuf
-                -Dotel.resource.attributes=service.name=cart-service,k8s.namespace=ecommerce,k8s.deployment.name=cart-service
-                -Dotel.instrumentation.log4j.enabled=false
-                -Dotel.instrumentation.logback-appender.enabled=false
-                -Dotel.traces.sampler=always_on
-                -Dotel.javaagent.debug=false
-          volumeMounts:
-            - name: opentelemetry-javaagent
-              mountPath: /otel
-              readOnly: true
-          resources:
-            requests:
-              memory: "512Mi"
-              cpu: "250m"
-            limits:
-              memory: "1024Mi"
-              cpu: "500m"
-          readinessProbe:
-            httpGet:
-              path: /actuator/health
-              port: 8083
-            initialDelaySeconds: 30
-            periodSeconds: 10
-          livenessProbe:
-            httpGet:
-              path: /actuator/health
-              port: 8083
-            initialDelaySeconds: 60
-            periodSeconds: 15
-      initContainers:
-        # Download OpenTelemetry Java Agent
-        - name: download-javaagent
-          image: curlimages/curl:latest
-          command: 
-            - sh
-            - -c
-            - |
-              echo "Downloading OpenTelemetry Java Agent..."
-              curl -L https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/latest/download/opentelemetry-javaagent.jar \
-                -o /otel/opentelemetry-javaagent.jar
-              echo "Download complete. File size:"
-              ls -lh /otel/opentelemetry-javaagent.jar
-          volumeMounts:
-            - name: opentelemetry-javaagent
-              mountPath: /otel
-      volumes:
-        - name: opentelemetry-javaagent
-          emptyDir: {}
----
-# Redis Deployment (updated with persistence)
+# redis-deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -112,95 +9,63 @@ spec:
   selector:
     matchLabels:
       app: redis
+      tier: cache
   template:
     metadata:
       labels:
         app: redis
+        tier: cache
     spec:
       containers:
-        - name: redis
-          image: redis:7-alpine
-          ports:
-            - containerPort: 6379
-          env:
-            - name: REDIS_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: redis-secret
-                  key: REDIS_PASSWORD
-          args: 
-            - --requirepass
-            - $(REDIS_PASSWORD)
-            - --appendonly
-            - "yes"
-            - --appendfsync
-            - everysec
-            - --maxmemory
-            - 256mb
-            - --maxmemory-policy
-            - allkeys-lru
-          volumeMounts:
-            - name: redis-data
-              mountPath: /data
-          resources:
-            requests:
-              memory: "128Mi"
-              cpu: "100m"
-            limits:
-              memory: "256Mi"
-              cpu: "250m"
-          readinessProbe:
-            tcpSocket:
-              port: 6379
-            initialDelaySeconds: 5
-            periodSeconds: 5
-          livenessProbe:
-            tcpSocket:
-              port: 6379
-            initialDelaySeconds: 30
-            periodSeconds: 10
-      volumes:
-        - name: redis-data
-          emptyDir: {}  # For production, use PersistentVolumeClaim
+      - name: redis
+        image: redis:7-alpine
+        command: ["redis-server"]
+        args: 
+          - "--requirepass"
+          - "password123"
+          - "--appendonly"
+          - "yes"
+          - "--bind"
+          - "0.0.0.0"  # IMPORTANT: Bind to all interfaces
+        ports:
+        - containerPort: 6379
+          name: redis
+        env:
+        - name: REDIS_PASSWORD
+          value: "password123"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "250m"
+        readinessProbe:
+          tcpSocket:
+            port: 6379
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        livenessProbe:
+          tcpSocket:
+            port: 6379
+          initialDelaySeconds: 30
+          periodSeconds: 10
 ---
-# Redis Service
+# Redis Service - CRITICAL FIX
 apiVersion: v1
 kind: Service
 metadata:
   name: redis
   namespace: ecommerce
+  labels:
+    app: redis
+    tier: cache
 spec:
   type: ClusterIP
   selector:
     app: redis
+    tier: cache
   ports:
-    - port: 6379
-      targetPort: 6379
-      protocol: TCP
----
-# Redis Password Secret
-apiVersion: v1
-kind: Secret
-metadata:
-  name: redis-secret
-  namespace: ecommerce
-type: Opaque
-data:
-  REDIS_PASSWORD: cGFzc3dvcmQxMjM=  # password123 in base64
----
-# Redis ConfigMap for advanced configuration
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: redis-config
-  namespace: ecommerce
-data:
-  redis.conf: |
-    # Redis configuration for ecommerce
-    maxmemory 256mb
-    maxmemory-policy allkeys-lru
-    appendonly yes
-    appendfsync everysec
-    save 900 1
-    save 300 10
-    save 60 10000
+  - port: 6379
+    targetPort: 6379
+    protocol: TCP

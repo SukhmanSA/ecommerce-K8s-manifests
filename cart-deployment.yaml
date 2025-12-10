@@ -36,3 +36,11 @@ spec:
                 secretKeyRef:
                   name: postgres-secret
                   key: POSTGRES_PASSWORD
+            - name: REDIS_PASSWORD
+              value: "password123"
+            - name: SPRING_REDIS_PASSWORD
+              value: "password123"
+            - name: SPRING_REDIS_HOST
+              value: redis.ecommerce.svc.cluster.local
+            - name: SPRING_REDIS_PORT
+              value: "6379"
