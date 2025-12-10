@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: products-service
-          image: 719742385367.dkr.ecr.ap-south-1.amazonaws.com/ecommerce:productservice-403bffe
+          image: docker.io/sukhman78/ecommerce-deployment:products-service
           imagePullPolicy: Always
           ports:
             - containerPort: 8082

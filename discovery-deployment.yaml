@@ -15,7 +15,8 @@ spec:
     spec:
       containers:
         - name: discovery-service
-          image: 719742385367.dkr.ecr.ap-south-1.amazonaws.com/ecommerce:discoveryservice-403bffe
+          image: docker.io/sukhman78/ecommerce-deployment:discovery-service
+          imagePullPolicy: Always
           ports:
             - containerPort: 8761
           env:

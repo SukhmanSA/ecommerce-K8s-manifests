@@ -15,7 +15,8 @@ spec:
     spec:
       containers:
         - name: api-gateway
-          image: 719742385367.dkr.ecr.ap-south-1.amazonaws.com/ecommerce:apigateway-403bffe
+          image: docker.io/sukhman78/ecommerce-deployment:api-gateway
+          imagePullPolicy: Always
           ports:
             - containerPort: 9000
           env:
