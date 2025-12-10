@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: api-gateway
-          image: docker.io/sukhman78/ecommerce-deployment:api-gateway-latest
+          image: docker.io/sukhman78/ecommerce-deployment:api-gateway-e7244a87c87b859c275d9c6137898eec61a2aeaf
           imagePullPolicy: Always
           ports:
             - containerPort: 9000
