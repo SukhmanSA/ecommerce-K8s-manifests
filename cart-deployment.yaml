@@ -17,7 +17,6 @@ spec:
         - name: cart-service
           image: docker.io/sukhman78/ecommerce-deployment:cart-service-latest
           imagePullPolicy: Always
-          imagePullPolicy: Always
           ports:
             - containerPort: 8083
           env:
