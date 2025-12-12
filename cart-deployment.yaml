@@ -37,5 +37,5 @@ spec:
                   name: postgres-secret
                   key: POSTGRES_PASSWORD
             - name: ELASTICACHE_ENDPOINT
-              value: redis-cache-uusa03.serverless.aps1.cache.amazonaws.com:6379
+              value: ecommerce-cache-uusa03.serverless.aps1.cache.amazonaws.com
 
