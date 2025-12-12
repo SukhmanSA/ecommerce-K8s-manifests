@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: discovery-service
-          image: docker.io/sukhman78/ecommerce-deployment:discovery-service-2ed4ecdfdbce3b84ce790142a5be9d4c3269142f
+          image: docker.io/sukhman78/ecommerce-deployment:discovery-service-9c465153f7b457854ac3ad5818685766e98e735d
           imagePullPolicy: Always
           ports:
             - containerPort: 8761

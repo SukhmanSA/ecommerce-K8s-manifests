@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: user-service
-          image: docker.io/sukhman78/ecommerce-deployment:user-service-2ed4ecdfdbce3b84ce790142a5be9d4c3269142f
+          image: docker.io/sukhman78/ecommerce-deployment:user-service-9c465153f7b457854ac3ad5818685766e98e735d
           imagePullPolicy: Always
           ports:
             - containerPort: 8081
