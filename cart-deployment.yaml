@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: cart-service
-          image: docker.io/sukhman78/ecommerce-deployment:cart-service-5c03d06c736a68250c91ca52545d19c6148a7706
+          image: docker.io/sukhman78/ecommerce-deployment:cart-service-48a3a91769a2e781bf278863202c9e31beeb24f6
           imagePullPolicy: Always
           ports:
             - containerPort: 8083
