@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: cart-service
-          image: docker.io/sukhman78/ecommerce-deployment:cart-service-7d0b68d0477b630451c0f0177221ffec843b65c6
+          image: docker.io/sukhman78/ecommerce-deployment:cart-service-e7244a87c87b859c275d9c6137898eec61a2aeaf
           imagePullPolicy: Always
           ports:
             - containerPort: 8083
@@ -36,11 +36,6 @@ spec:
                 secretKeyRef:
                   name: postgres-secret
                   key: POSTGRES_PASSWORD
-            - name: REDIS_PASSWORD
-              value: "password123"
-            - name: SPRING_REDIS_PASSWORD
-              value: "password123"
-            - name: SPRING_REDIS_HOST
-              value: redis.ecommerce.svc.cluster.local
-            - name: SPRING_REDIS_PORT
-              value: "6379"
+            - name: ELASTICACHE_ENDPOINT
+              value: redis-cache-uusa03.serverless.aps1.cache.amazonaws.com:6379
+
