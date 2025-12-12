@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: products-service
-          image: docker.io/sukhman78/ecommerce-deployment:products-service-9ee6e5c4bf03b7a4ede2cd6f0ff768d9a64a658d
+          image: docker.io/sukhman78/ecommerce-deployment:products-service-7b1cb1f1a6ef8b2d83f5b9af4a38e6ea6b945236
           imagePullPolicy: Always
           ports:
             - containerPort: 8082
